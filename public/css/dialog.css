@@ -1,0 +1,68 @@
+#main-container {
+    display: inline-block;
+    position: fixed;
+    left: 50%;
+    top: 45%;
+    transform: translate(-50%, -50%);
+    border: 1px solid rgb(198, 231, 198);
+    box-shadow: inset 0 0 10px rgb(198, 231, 198);
+    border-radius: 20px;
+    padding: 30px 30px 15px 30px;
+}
+
+#logo-container {
+    background-color: rgb(242, 248, 255);
+    background: radial-gradient(
+        circle,
+        rgb(199, 225, 255) 0%,
+        rgba(242, 248, 255, 0.5) 100%
+    );
+    border-top-left-radius: 30px;
+    border-top-right-radius: 30px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+#logo {
+    margin-right: auto;
+    margin-left: auto;
+    width: 105px;
+    height: 105px;
+    font-size: 60px;
+    color: white;
+    background-color: rgb(22, 20, 20);
+    border-radius: 50%;
+    text-align: center;
+}
+
+.index-title {
+    font-size: 26px;
+    color: grey;
+    text-align: center;
+    margin: 10px;
+}
+
+#info-input-container {
+    width: 310px;
+    margin: 10px auto;
+    border: 1px solid rgb(157, 210, 228);
+    background-color: rgb(242, 248, 255);
+    border-radius: 10px;
+    padding: 15px;
+}
+
+#login-btn {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.direct-dialog {
+    font-size: smaller;
+    display: inline-block;
+    margin-right: auto;
+    margin-left: auto;
+    padding: 2px;
+    border: 1px solid rgb(255, 197, 197);
+    border-radius: 3px;
+    background-color: rgb(255, 230, 230);
+}

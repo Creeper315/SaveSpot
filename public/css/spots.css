@@ -1,0 +1,52 @@
+#main-container {
+    display: flex;
+    flex-direction: row;
+}
+#side-menu {
+    background-color: black;
+    display: inline-block;
+}
+
+#side-menu {
+    width: 280px;
+    min-height: 100vh;
+}
+
+.side-menu-item:hover {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.bi.bi-pin-map {
+    color: black;
+}
+.card {
+    width: 250px;
+    margin-left: 10px;
+    margin-right: 10px;
+    background-color: blanchedalmond;
+}
+.card-body {
+    line-height: 10px;
+}
+.card-title {
+    font-size: normal;
+    line-height: 10px;
+    font-weight: bolder;
+    color: rgb(45, 67, 163);
+}
+.card-text {
+    font-size: smaller;
+    line-height: 14px;
+}
+.all-card-container {
+    flex-grow: 1;
+    padding: 20px;
+    background-color: dodgerblue;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: flex-starts;
+    flex-wrap: wrap;
+    justify-items: flex-start;
+}

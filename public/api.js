@@ -15,30 +15,33 @@ function sendPost() {
             console.log(e);
         });
 }
-function login() {
-    console.log('begin login');
-    // obj = {
 
-    // };
+function login() {
     axios({
         method: 'POST',
         url: '/login',
         headers: {
             'Content-Type': 'application/json',
         },
-        // params: {
-        //     email: 'abc',
-        //     password: '123',
-        // },
-        data: {
-            email: 'abc',
-            password: '123',
-        },
+
+        data: getLoginFormData(),
     })
         .then((e) => {
-            console.log(e.data);
+            if (e.data.result == 'success') {
+                window.location.href = '/spot';
+            }
         })
         .catch((e) => {
             console.log(e);
         });
+}
+
+function jumpRegister() {
+    window.location.href = '/register';
+}
+
+function register() {
+    console.log('nothing implemented yet.');
+    data = getRegisterFormData();
+    console.log('upon register, ', data);
 }
