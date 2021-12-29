@@ -1,5 +1,19 @@
 let myUrl = 'http://localhost:3000'; // ← 不需要把这个 url append 到 axios 的 url 前面。
 
+// Register: add new email to server database, email cannot duplicate,
+// How to check it's a valid email?
+
+function getRegisterFormData() {
+    console.log('from register');
+    let e = document.getElementById('email-input');
+    let pass = document.getElementById('login-password');
+    console.log(e, pass);
+    return {
+        email: e,
+        password: pass,
+    };
+}
+
 function sendPost() {
     console.log('sending from register.js');
     axios({
@@ -14,30 +28,6 @@ function sendPost() {
         .catch((e) => {
             console.log(e);
         });
-}
-
-function login() {
-    axios({
-        method: 'POST',
-        url: '/login',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-
-        data: getLoginFormData(),
-    })
-        .then((e) => {
-            if (e.data.result == 'success') {
-                window.location.href = '/spot';
-            }
-        })
-        .catch((e) => {
-            console.log(e);
-        });
-}
-
-function jumpRegister() {
-    window.location.href = '/register';
 }
 
 function register() {

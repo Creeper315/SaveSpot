@@ -21,32 +21,64 @@
     color: black;
 }
 .card {
-    width: 250px;
-    margin-left: 10px;
-    margin-right: 10px;
     background-color: blanchedalmond;
+    display: flex;
+    flex-direction: column;
+    /* height: 350px; */
+    min-height: 0;
+    /* overflow: hidden; */
 }
 .card-body {
     line-height: 10px;
+    overflow: scroll;
+}
+.btn-container {
+    height: 55px;
+    padding: 10px 5px 5px 5px;
+    flex-shrink: 0;
+    background-color: rgba(188, 143, 143, 0.4);
 }
 .card-title {
     font-size: normal;
     line-height: 10px;
     font-weight: bolder;
-    color: rgb(45, 67, 163);
+    color: rgb(42, 53, 99);
 }
 .card-text {
     font-size: smaller;
     line-height: 14px;
 }
-.all-card-container {
+.all-content {
     flex-grow: 1;
-    padding: 20px;
-    background-color: dodgerblue;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
+}
+.all-card-container {
+    padding: 20px;
+    background-color: rgb(189, 222, 255);
+    flex-grow: 1;
+    max-height: 90vh;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    row-gap: 10px;
+    column-gap: 27px;
+}
+
+.all-card-container .card {
+    border: 1px solid green;
+}
+
+.btn-container {
+    display: flex;
     align-items: flex-start;
-    justify-content: flex-starts;
-    flex-wrap: wrap;
-    justify-items: flex-start;
+    justify-content: space-evenly;
+}
+.pagination {
+    flex-grow: 1;
+    background-color: rgb(255, 192, 236);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    column-gap: 20px;
 }

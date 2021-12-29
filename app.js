@@ -19,69 +19,76 @@ const currentUsers = [
     { email: 'elina@gmail.com', password: 'cool' },
     { email: 'hello123', password: '123' },
 ];
-const allSpots = [
+var allSpots = [
     {
         id: 1,
         requester: 'abc',
-        time: '2021-10-01 9:00AM',
+        time: '2021-10-01 1:00AM',
         location: 'UBC Math 100 first row, any seat',
         helper: 'elina@gmail.com',
         reward: '$20',
         complete: false,
+        visible: true,
     },
     {
         id: 2,
         requester: 'elina@gmail.com',
-        time: '2021-10-01 9:00AM',
+        time: '2021-10-01 2:00AM',
         location: 'UBC Math 100 first row, any seat',
         helper: 'abc',
         reward: '$20',
         complete: false,
+        visible: true,
     },
     {
         id: 3,
         requester: 'elina@gmail.com',
-        time: '2021-10-01 9:00AM',
+        time: '2021-10-01 3:00AM',
         location: 'UBC Math 100 first row, any seat',
         helper: undefined,
         reward: '$20',
         complete: false,
+        visible: true,
     },
     {
         id: 4,
         requester: 'hello123',
-        time: '2021-10-01 9:00AM',
+        time: '2021-10-01 4:00AM',
         location: 'UBC Math 100 first row, any seat',
         helper: undefined,
         reward: '$20',
         complete: false,
+        visible: true,
     },
     {
         id: 5,
         requester: 'hello123',
-        time: '2021-10-01 9:00AM',
+        time: '2021-10-01 5:00AM',
         location: 'UBC Math 100 first row, any seat',
         helper: 'elina@gmail.com',
         reward: '$20',
         complete: true,
+        visible: true,
     },
     {
         id: 6,
         requester: 'abc',
-        time: '2021-10-01 9:00AM',
+        time: '2021-10-01 6:00AM',
         location: 'UBC Math 100 first row, any seat',
         helper: 'hello123',
         reward: '$20',
         complete: false,
+        visible: true,
     },
     {
         id: 7,
         requester: 'abc',
-        time: '2021-10-01 9:00AM',
+        time: '2021-10-01 7:00AM',
         location: 'UBC Math 100 first row, any seat',
         helper: undefined,
         reward: '$20',
         complete: false,
+        visible: true,
     },
 ];
 
@@ -132,21 +139,20 @@ app.post('/login', (q, s) => {
     let email = q.body.email;
     let password = q.body.password;
     if (!email || !password) {
-        s.json({ result: 'Please provide both email & password' });
+        s.status(400).send('Please provide both email & password');
+        return;
     }
+    let match_any_user = false;
     currentUsers.forEach((e) => {
         if (email == e.email && password == e.password) {
+            match_any_user = true;
             q.session.uId = q.body.email;
-            s.json({ result: 'success, logged in as user: ' + email });
+            s.status(200).send('success, logged in as user: ' + email);
+            return;
         }
     });
-    if (q.body.email == 'abc' && q.body.password == '123') {
-        q.session.uId = q.body.email;
-        // console.log('Session exist, redirect spot!');
-        s.json({ result: 'success' });
-    } else {
-        // console.log('wrong email/pass');
-        s.json({ result: 'wrong email or pass' });
+    if (!match_any_user) {
+        s.status(403).send('wrong email or password');
     }
 });
 
@@ -190,6 +196,16 @@ app.get('/spot/data/:type', (q, s) => {
                 if (!e.helper) {
                     return filterHelper(e);
                 } else {
+                    return e;
+                }
+            });
+            break;
+
+        case 'needing_help':
+            result = allSpots.flatMap((e) => {
+                if (!e.helper) {
+                    return filterHelper(e);
+                } else {
                     return [];
                 }
             });
@@ -221,5 +237,67 @@ app.get('/spot/data/:type', (q, s) => {
         spots: result,
         user: my_email,
     };
-    s.json(result);
+    s.status(200).json(result);
+});
+// id: 1,
+// requester: 'abc',
+// time: '2021-10-01 9:00AM',
+// location: 'UBC Math 100 first row, any seat',
+// helper: 'elina@gmail.com',
+// reward: '$20',
+// complete: false,
+// visible: true,
+app.post('/spot/action/:act', (q, s) => {
+    if (q.session.uId) {
+        var my_email = q.session.uId;
+    } else {
+        s.redirect('/'); // TODO , check if this work.
+    }
+    let type = q.params['act'];
+    let data = q.body;
+    console.log('act here, ', type, data);
+    switch (type) {
+        case 'help': {
+            allSpots = allSpots.map((e) => {
+                if (e.id == data.postID) {
+                    return {
+                        ...e,
+                        helper: data.user,
+                    };
+                } else {
+                    return e;
+                }
+            });
+            // console.log('what ? ', allSpots[1]);
+            s.status(200).send('helper added!');
+            s.end();
+            break;
+        }
+        case 'cancelhelp': {
+            allSpots = allSpots.map((e) => {
+                if (e.id == data.postID) {
+                    return {
+                        ...e,
+                        helper: null,
+                    };
+                } else {
+                    return e;
+                }
+            });
+            s.status(200).send('helper removed!');
+            s.end();
+            break;
+        }
+        case 'public':
+            break;
+        case 'invisible':
+            break;
+        case 'edit':
+            break;
+        case 'delete':
+            break;
+        default:
+            console.log('shouldnt get here, unknown type: ', type);
+            break;
+    }
 });
