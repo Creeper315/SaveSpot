@@ -183,3 +183,36 @@ function deletePost(postID) {
         data: { postID },
     });
 }
+
+// function saveEdit() {
+
+//     let time, location, reward;
+//     time = document.getElementById('edit-time');
+//     time = time.getAttribute('placeholder');
+//     location = document.getElementById('edit-location');
+//     location = location.getAttribute('placeholder');
+//     reward = document.getElementById('edit-reward');
+//     reward = reward.getAttribute('placeholder');
+//     axios({
+//         method: 'post',
+//         url: '/spot/action/saveEdit',
+//         data:{
+//             postID: one_spot_data.id,
+//         }
+//     });
+// }
+
+function signOut() {
+    axios({
+        method: 'post',
+        url: '/signout',
+    })
+        .then((e) => {
+            if (e.status == 200) {
+                window.location.href = '/';
+            }
+        })
+        .catch((e) => {
+            console.log(e);
+        });
+}

@@ -45,11 +45,61 @@ let getDeleteButton = (one_spot_data, card_html_element) => {
     but.innerText = 'Delete';
     return but;
 };
+{
+    /* <div class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editSpotModal">
+    Open modal
+</div>; */
+}
 let getEditButton = (one_spot_data, card_html_element) => {
     let but = document.createElement('div');
     but.className = 'btn btn-primary btn-sm';
     but.style = 'border: 1px solid rgb(14, 13, 13);';
     but.innerText = 'Edit';
+    but.setAttribute('data-bs-toggle', 'modal');
+    but.setAttribute('data-bs-target', '#editSpotModal');
+    but.onclick = () => {
+        // console.log('edit butt, ', one_spot_data);
+        let editTime = document.getElementById('edit-time');
+        editTime.value = one_spot_data.time;
+        let editLocation = document.getElementById('edit-location');
+        editLocation.value = one_spot_data.location;
+        let editReward = document.getElementById('edit-reward');
+        editReward.value = one_spot_data.reward;
+        let editSaveBtn = document.querySelector('#edit-save-btn');
+        editSaveBtn.onclick = () => {
+            editSaveBtn.innerText = '...';
+            let t = editTime.value;
+            let l = editLocation.value;
+            let r = editReward.value;
+            axios({
+                method: 'post',
+                url: '/spot/action/edit',
+                data: {
+                    postID: one_spot_data.id,
+                    time: t,
+                    location: l,
+                    reward: r,
+                },
+            })
+                .then((e) => {
+                    if (e.status == 200) {
+                        one_spot_data.time = t;
+                        one_spot_data.location = l;
+                        one_spot_data.reward = r;
+                        changeCardBody(one_spot_data, card_html_element);
+                        alert('Saved !');
+                        editSaveBtn.innerText = 'Save';
+                    } else {
+                        editSaveBtn.innerText = 'Save';
+                        alert('failed to save, status: ', e.status);
+                    }
+                })
+                .catch((e) => {
+                    editSaveBtn.innerText = 'Save';
+                    alert('failed to save, status: ', e.status);
+                });
+        };
+    };
     return but;
 };
 
@@ -76,8 +126,6 @@ let getVisibilityButton = (one_spot_data, card_html_element, to_public) => {
 let getHelpButton = (one_spot_data, card_html_element, to_help) => {
     // 1.创造一个 button ，如果 onclick，那么 1.在 server 里改，如果 200：1.先改 one_spot_data，再通过改过的 one_spot_data，在 html 上改
 
-    console.log('help but -- ', one_spot_data, to_help);
-
     let con = getButtonContainer();
     let but = document.createElement('div');
     but.className = 'btn btn-primary btn-sm';
@@ -85,10 +133,6 @@ let getHelpButton = (one_spot_data, card_html_element, to_help) => {
     con.appendChild(but);
     but.innerText = to_help ? 'Help' : 'Cencel Help';
     let onclick = () => {
-        console.log(
-            'hlp btn click, whats spot helper , ',
-            one_spot_data.helper
-        );
         if (!one_spot_data.helper) {
             var to_help = true;
         } else {

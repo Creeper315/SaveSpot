@@ -255,7 +255,7 @@ app.post('/spot/action/:act', (q, s) => {
     }
     let type = q.params['act'];
     let data = q.body;
-    console.log('act here, ', type, data);
+    // console.log('act here, ', type, data);
     switch (type) {
         case 'help': {
             allSpots = allSpots.map((e) => {
@@ -292,12 +292,39 @@ app.post('/spot/action/:act', (q, s) => {
             break;
         case 'invisible':
             break;
-        case 'edit':
+
+        case 'edit': {
+            allSpots = allSpots.map((e) => {
+                if (e.id == data.postID) {
+                    // console.log('edit this', data);
+                    return {
+                        ...e,
+                        location: data.location,
+                        time: data.time,
+                        reward: data.reward,
+                    };
+                } else {
+                    return e;
+                }
+            });
+            s.status(200).send('edit saved!');
+            s.end();
             break;
+        }
+
         case 'delete':
             break;
         default:
             console.log('shouldnt get here, unknown type: ', type);
             break;
     }
+});
+app.post('/signout', (q, s) => {
+    try {
+        q.session.destroy();
+    } catch (error) {
+        s.status(500).send('failed to sign out');
+        s.end();
+    }
+    s.status(200).send('success');
 });
