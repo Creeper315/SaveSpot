@@ -19,6 +19,7 @@ const currentUsers = [
     { email: 'elina@gmail.com', password: 'cool' },
     { email: 'hello123', password: '123' },
 ];
+
 var allSpots = [
     {
         id: 1,
@@ -27,7 +28,6 @@ var allSpots = [
         location: 'UBC Math 100 first row, any seat',
         helper: 'elina@gmail.com',
         reward: '$20',
-        complete: false,
         visible: true,
     },
     {
@@ -37,7 +37,6 @@ var allSpots = [
         location: 'UBC Math 100 first row, any seat',
         helper: 'abc',
         reward: '$20',
-        complete: false,
         visible: true,
     },
     {
@@ -47,7 +46,6 @@ var allSpots = [
         location: 'UBC Math 100 first row, any seat',
         helper: undefined,
         reward: '$20',
-        complete: false,
         visible: true,
     },
     {
@@ -57,7 +55,6 @@ var allSpots = [
         location: 'UBC Math 100 first row, any seat',
         helper: undefined,
         reward: '$20',
-        complete: false,
         visible: true,
     },
     {
@@ -67,7 +64,6 @@ var allSpots = [
         location: 'UBC Math 100 first row, any seat',
         helper: 'elina@gmail.com',
         reward: '$20',
-        complete: true,
         visible: true,
     },
     {
@@ -77,7 +73,6 @@ var allSpots = [
         location: 'UBC Math 100 first row, any seat',
         helper: 'hello123',
         reward: '$20',
-        complete: false,
         visible: true,
     },
     {
@@ -87,10 +82,24 @@ var allSpots = [
         location: 'UBC Math 100 first row, any seat',
         helper: undefined,
         reward: '$20',
-        complete: false,
         visible: true,
     },
 ];
+let deletedID = [];
+
+// currentID = currentID.filter(onlyUnique);
+// function onlyUnique(value, index, self) {
+//     return self.indexOf(value) === index;
+// }
+function getUniqueID() {
+    if (deletedID.length != 0) {
+        return deletedID.pop();
+    }
+    let currentID = allSpots.map((e) => {
+        return e.id;
+    });
+    return Math.max(...currentID) + 1;
+}
 
 function minute_to_milisecond(min) {
     return Math.ceil(min * 60 * 1000);
@@ -190,9 +199,17 @@ app.get('/spot/data/:type', (q, s) => {
             return obj;
         }
     };
+    // 先过滤一遍 visible 的：
+    console.log('print before get ', allSpots);
+    result = allSpots.filter((e) => {
+        // console.log(e);
+        return e.requester == my_email || e.visible == true; // 如果是自己的 post，或者不是自己的post 但是 visible 是true
+    });
+    console.log('result after filter: ', result);
+    //
     switch (type) {
         case 'all':
-            result = allSpots.flatMap((e) => {
+            result = result.flatMap((e) => {
                 if (!e.helper) {
                     return filterHelper(e);
                 } else {
@@ -202,7 +219,7 @@ app.get('/spot/data/:type', (q, s) => {
             break;
 
         case 'needing_help':
-            result = allSpots.flatMap((e) => {
+            result = result.flatMap((e) => {
                 if (!e.helper) {
                     return filterHelper(e);
                 } else {
@@ -210,8 +227,8 @@ app.get('/spot/data/:type', (q, s) => {
                 }
             });
             break;
-        case 'requested_by_me':
-            result = allSpots.flatMap((e) => {
+        case 'posted_by_me':
+            result = result.flatMap((e) => {
                 if (e.requester == my_email) {
                     return filterHelper(e);
                 } else {
@@ -219,8 +236,8 @@ app.get('/spot/data/:type', (q, s) => {
                 }
             });
             break;
-        case 'worked_by_me':
-            result = allSpots.flatMap((e) => {
+        case 'helped_by_me':
+            result = result.flatMap((e) => {
                 if (e.helper == my_email) {
                     return filterHelper(e);
                 } else {
@@ -257,6 +274,21 @@ app.post('/spot/action/:act', (q, s) => {
     let data = q.body;
     // console.log('act here, ', type, data);
     switch (type) {
+        case 'create': {
+            let obj = {
+                id: getUniqueID(),
+                requester: my_email,
+                time: data.time,
+                location: data.location,
+                helper: null,
+                reward: data.reward,
+                visible: true,
+            };
+            allSpots.unshift(obj);
+            s.status(200).json(obj);
+            s.end();
+            break;
+        }
         case 'help': {
             allSpots = allSpots.map((e) => {
                 if (e.id == data.postID) {
@@ -288,10 +320,37 @@ app.post('/spot/action/:act', (q, s) => {
             s.end();
             break;
         }
-        case 'public':
+        case 'public': {
+            allSpots = allSpots.map((e) => {
+                if (e.id == data.postID) {
+                    return {
+                        ...e,
+                        visible: true,
+                    };
+                } else {
+                    return e;
+                }
+            });
+            s.status(200).send('success public');
+            s.end();
             break;
-        case 'invisible':
+        }
+
+        case 'invisible': {
+            allSpots = allSpots.map((e) => {
+                if (e.id == data.postID) {
+                    return {
+                        ...e,
+                        visible: false,
+                    };
+                } else {
+                    return e;
+                }
+            });
+            s.status(200).send('success invisible');
+            s.end();
             break;
+        }
 
         case 'edit': {
             allSpots = allSpots.map((e) => {
@@ -312,13 +371,22 @@ app.post('/spot/action/:act', (q, s) => {
             break;
         }
 
-        case 'delete':
+        case 'delete': {
+            allSpots = allSpots.filter((e) => {
+                return e.id != data.postID;
+            });
+            deletedID.push(data.postID);
+            s.status(200).send('success');
+            s.end();
             break;
+        }
+
         default:
             console.log('shouldnt get here, unknown type: ', type);
             break;
     }
 });
+
 app.post('/signout', (q, s) => {
     try {
         q.session.destroy();

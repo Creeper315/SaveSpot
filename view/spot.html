@@ -19,7 +19,7 @@
     <!-- <p >do u get spot</p> -->
     <div id="main-container">
         <div class="d-flex flex-column flex-shrink-0 p-3 bg-light" id="side-menu">
-            <a href="/spots" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none">
+            <a href="/spot" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none">
                 <i class="bi bi-pin-map"></i>
                 &nbsp;&nbsp;&nbsp;&nbsp;
                 <span class="fs-4 spots-title">SaveASpot</span>
@@ -27,23 +27,32 @@
             <hr>
             <ul class="nav nav-pills flex-column mb-auto">
                 <li>
-                    <a href="#" class="nav-link side-menu-item link-dark">
+                    <a href="#" class="nav-link side-menu-item link-dark" 
+                    data-bs-toggle="modal" 
+                    data-bs-target="#editSpotModal" 
+                    id="create-new-post"
+                    onclick="createPost()">
                         Create New Request
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link side-menu-item link-dark" aria-current="page">
+                    <a href="#" class="nav-link side-menu-item link-dark" aria-current="page" onclick="renderEverything('all')">
                         All Items
                     </a>
                 </li>
-                <li>
-                    <a href="#" class="nav-link side-menu-item link-dark">
-                        My Requested Items
+                <li class="nav-item">
+                    <a href="#" class="nav-link side-menu-item link-dark" aria-current="page" onclick="renderEverything('needing_help')">
+                        All Needing Help
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="nav-link side-menu-item link-dark">
-                        My Work Items
+                    <a href="#" class="nav-link side-menu-item link-dark" onclick="renderEverything('posted_by_me')">
+                        My Posts
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="nav-link side-menu-item link-dark" onclick="renderEverything('helped_by_me')">
+                       Helped by Me
                     </a>
                 </li>
     
@@ -62,7 +71,7 @@
         </div>
         <div class="all-content">
             <div class="all-card-container">
-                <div class="card" style="opacity: 0.5;">
+                <!-- <div class="card" style="opacity: 0.5;">
                     <div class="card-body">
                         <p class="card-title"> oh wow 爱仕达大所大</p>
                         <p class="card-text">hihi texttt asdasdadadadasdas asdasda dadadasdas asdasdad adadasdas</p>
@@ -80,7 +89,7 @@
                         <p class="card-text">hihi texttt</p>
                     </div>
                     <div class="btn-container">
-                        <!-- <div class="btn btn-primary btn-sm" style="display: block; margin: auto;">HELP</div> -->
+                        <div class="btn btn-primary btn-sm" style="display: block; margin: auto;">HELP</div>
                         <div class="btn btn-sm btn-warning" style="border: 1px solid rgb(24, 143, 255); color: white;">set Public</div>
                         <div class='btn btn-primary btn-sm' style="border: 1px solid rgb(14, 13, 13);">Edit</div>
                         <div class='btn btn-danger btn-sm' style="border: 1px solid white;">Delete</div>
@@ -120,7 +129,7 @@
                         <p class="card-text">hihi texttt 22</p>
                         <div class="btn btn-primary">Click</div>
                     </div>
-                </div>
+                </div> -->
 
             </div>
             <div class="pagination">

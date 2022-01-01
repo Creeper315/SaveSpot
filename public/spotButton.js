@@ -43,6 +43,30 @@ let getDeleteButton = (one_spot_data, card_html_element) => {
     but.className = 'btn btn-danger btn-sm';
     but.style = 'border: 1px solid white;';
     but.innerText = 'Delete';
+    let onclick = () => {
+        if (confirm('Delete this post ?')) {
+            but.innerText = '...';
+            axios({
+                method: 'post',
+                url: '/spot/action/delete',
+                data: {
+                    postID: one_spot_data.id,
+                },
+            })
+                .then((e) => {
+                    if (e.status == 200) {
+                        card_html_element.parentElement.removeChild(
+                            card_html_element
+                        );
+                    }
+                })
+                .catch((e) => {
+                    alert('delete post failed, status: ', e.status);
+                    but.innerText = 'Delete';
+                });
+        }
+    };
+    but.onclick = onclick;
     return but;
 };
 {
@@ -66,6 +90,7 @@ let getEditButton = (one_spot_data, card_html_element) => {
         let editReward = document.getElementById('edit-reward');
         editReward.value = one_spot_data.reward;
         let editSaveBtn = document.querySelector('#edit-save-btn');
+        editSaveBtn.innerText = 'Save';
         editSaveBtn.onclick = () => {
             editSaveBtn.innerText = '...';
             let t = editTime.value;
@@ -88,14 +113,14 @@ let getEditButton = (one_spot_data, card_html_element) => {
                         one_spot_data.reward = r;
                         changeCardBody(one_spot_data, card_html_element);
                         alert('Saved !');
-                        editSaveBtn.innerText = 'Save';
+                        editSaveBtn.innerText = 'Saved';
                     } else {
-                        editSaveBtn.innerText = 'Save';
+                        editSaveBtn.innerText = 'Save failed';
                         alert('failed to save, status: ', e.status);
                     }
                 })
                 .catch((e) => {
-                    editSaveBtn.innerText = 'Save';
+                    editSaveBtn.innerText = 'Save failed';
                     alert('failed to save, status: ', e.status);
                 });
         };
@@ -103,23 +128,50 @@ let getEditButton = (one_spot_data, card_html_element) => {
     return but;
 };
 
-let getVisibilityButton = (one_spot_data, card_html_element, to_public) => {
+let getVisibilityButton = (one_spot_data, card_html_element) => {
+    if (one_spot_data.visible) {
+        var to_public = false;
+    } else {
+        var to_public = true;
+    }
     let but = document.createElement('div');
     but.className = 'btn btn-sm btn-warning';
     but.style = 'border: 1px solid rgb(24, 143, 255); color: white';
     but.innerText = to_public ? 'set Public' : 'set Invisible';
-    // let onclick = ()=>{
-    //     but.innerText = '...';
-    //     axios({
-    //         method: 'post',
-    //         url: to_public ? '/spot/action/public' : '/spot/action/invisible',
-    //         data:{
-    //             postID: one_spot_data.id,
-    //         }
-    //     }).then(e=>{
-    //         if
-    //     })
-    // }
+    let onclick = () => {
+        but.innerText = '...';
+        if (one_spot_data.visible) {
+            var to_public = false;
+        } else {
+            var to_public = true;
+        }
+        axios({
+            method: 'post',
+            url: to_public ? '/spot/action/public' : '/spot/action/invisible',
+            data: {
+                postID: one_spot_data.id,
+            },
+        })
+            .then((e) => {
+                if (e.status == 200) {
+                    if (to_public) {
+                        one_spot_data.visible = true;
+                        but.innerText = 'set Invisible';
+                    } else {
+                        one_spot_data.visible = false;
+                        but.innerText = 'set Public';
+                    }
+                } else {
+                    alert('set visibility failed. status ', e.status);
+                    but.innerText = to_public ? 'set Public' : 'set Invisible';
+                }
+            })
+            .catch((e) => {
+                alert('set visibility failed. status ', e.status);
+                but.innerText = to_public ? 'set Public' : 'set Invisible';
+            });
+    };
+    but.onclick = onclick;
     return but;
 };
 

@@ -34,16 +34,19 @@ var thisUser = '';
 var allSpotLoaded = [];
 
 window.addEventListener('load', () => {
-    fetchSpot('all')
+    renderEverything('all');
+});
+
+let renderEverything = (type = 'all') => {
+    fetchSpot(type)
         .then((e) => {
-            console.log('spot data, ', e.data);
+            // console.log('spot data, ', e.data);
             renderSpot(e.data);
         })
         .catch((e) => {
-            window.ee = e;
-            console.log('err here!?!?', e);
+            console.log('err during render spots: ', e);
         });
-});
+};
 
 let fetchSpot = (type) => {
     return axios({
@@ -171,9 +174,13 @@ function getAllSpot() {
         // 说明 axios 本身是一个 promise
         method: 'get',
         url: '/spot/data/all',
-    }).then((e) => {
-        console.log('fetched: ', e.data);
-    });
+    })
+        .then((e) => {
+            window.all = e.data.spots;
+        })
+        .catch((e) => {
+            console.log('error', e);
+        });
 }
 
 function deletePost(postID) {
@@ -215,4 +222,47 @@ function signOut() {
         .catch((e) => {
             console.log(e);
         });
+}
+function createPost() {
+    let editTime = document.getElementById('edit-time');
+    let editLocation = document.getElementById('edit-location');
+    let editReward = document.getElementById('edit-reward');
+    let editSaveBtn = document.querySelector('#edit-save-btn');
+    editSaveBtn.innerText = 'Create';
+    editTime.value = '';
+    editLocation.value = '';
+    editReward.value = '';
+    editSaveBtn.onclick = () => {
+        let t = editTime.value;
+        let l = editLocation.value;
+        let r = editReward.value;
+        axios({
+            method: 'post',
+            url: '/spot/action/create',
+            data: {
+                time: t,
+                location: l,
+                reward: r,
+            },
+        })
+            .then((e) => {
+                if (e.status == 200) {
+                    // one_spot_data 在 e.data 里面
+                    let card = oneSpotHTML(e.data);
+                    let con = document.querySelector('.all-card-container');
+
+                    con.insertBefore(card, con.firstChild);
+                    // changeCardBody(one_spot_data, card_html_element);
+                    // alert('created !');
+                    editSaveBtn.innerText = 'Created';
+                } else {
+                    editSaveBtn.innerText = 'Create failed';
+                    alert('failed to save, status: ', e.status);
+                }
+            })
+            .catch((e) => {
+                editSaveBtn.innerText = 'Create failed';
+                alert('failed to save, status: ', e.status);
+            });
+    };
 }
