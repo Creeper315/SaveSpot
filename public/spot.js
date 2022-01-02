@@ -32,15 +32,25 @@
 var thisUser = '';
 // ---------------- This All Spot Data loaded from server, Global Variable
 var allSpotLoaded = [];
+// window.sessionStorage.setItem('type') = 'all';
+// window.sessionStorage.setItem('current_p') = 1;
 
 window.addEventListener('load', () => {
-    renderEverything('all');
+    let type = sessionStorage.getItem('type');
+    if (type == null) {
+        type = 'all';
+    }
+    renderEverything(type);
 });
 
 let renderEverything = (type = 'all') => {
+    // if (!type) {
+    //     type = sessionStorage.getItem('type');
+    // }
     fetchSpot(type)
         .then((e) => {
             // console.log('spot data, ', e.data);
+            sessionStorage.setItem('type', type);
             renderSpot(e.data);
         })
         .catch((e) => {
@@ -53,14 +63,95 @@ let fetchSpot = (type) => {
         // 说明 axios 本身是一个 promise
         method: 'get',
         url: '/spot/data/' + type,
+        params: {
+            page_num: sessionStorage.getItem('cp'),
+        },
     });
 };
 
 let renderSpot = (data) => {
     thisUser = data.user;
+    let ele = document.querySelector('#left-bottom-user-name');
+    ele.innerText = thisUser;
     allSpotLoaded = data.spots;
+    sessionStorage.setItem('cp', data.current_p);
+    sessionStorage.setItem('tp', data.total_p);
+    setPagination();
     appendOneByOne();
 };
+function setPagination() {
+    let ele = document.querySelector('.page-number');
+    ele.innerText =
+        sessionStorage.getItem('cp') + ' / ' + sessionStorage.getItem('tp');
+    let left = document.querySelector('.page-left');
+    let right = document.querySelector('.page-right');
+    let input = document.querySelector('.page-input');
+    input.value = sessionStorage.getItem('cp');
+    input.onkeyup = (e) => {
+        if (e.key == 'Enter') {
+            go_to_page(input.value);
+        }
+    };
+    left.onclick = () => {
+        flip_page('left');
+    };
+    right.onclick = () => {
+        flip_page('right');
+    };
+}
+function go_to_page(p) {
+    let cp = sessionStorage.getItem('cp');
+    let tp = sessionStorage.getItem('tp');
+    if (p == cp) {
+        return;
+    }
+    if (p > tp) {
+        p = tp;
+    }
+    if (p <= 0) {
+        p = 1;
+    }
+    // 先 load from server，如果成功，update 所有东西？
+    console.log(
+        'make sure data correct ',
+        cp,
+        tp,
+        sessionStorage.getItem('type'),
+        p
+    );
+    axios({
+        method: 'get',
+        url: '/spot/data/' + sessionStorage.getItem('type'),
+        params: {
+            page_num: p,
+        },
+    })
+        .then((e) => {
+            if (e.status == 200) {
+                // window.ed = e.data;
+                // console.log('success in go to page');
+                renderSpot(e.data);
+            }
+        })
+        .catch((e) => {
+            console.log('flip page failed, ', e);
+        });
+}
+function flip_page(direction) {
+    let cp = sessionStorage.getItem('cp');
+    let tp = sessionStorage.getItem('tp');
+    if (direction == 'left') {
+        if (cp == 1) {
+            return;
+        }
+        go_to_page(parseInt(cp) - 1);
+    } else if (direction == 'right') {
+        if (cp == tp) {
+            return;
+        }
+        go_to_page(parseInt(cp) + 1);
+    }
+}
 
 function appendOneByOne() {
     // assume arr has attribute "id"

@@ -82,3 +82,14 @@
     align-items: center;
     column-gap: 20px;
 }
+.page-number,
+.page-input {
+    border: 1px solid gray;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: larger;
+}
+.page-input {
+    width: 30px;
+    text-align: center;
+}

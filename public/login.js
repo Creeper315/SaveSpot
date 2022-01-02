@@ -12,8 +12,8 @@ function getLoginFormData() {
 }
 
 window.addEventListener('keyup', (e) => {
-    if (e.keyCode == 13) {
-        console.log(e.keyCode);
+    if (e.key == 'Enter') {
+        // console.log(e.keyCode);
         login();
     }
 });

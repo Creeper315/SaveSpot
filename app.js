@@ -2,6 +2,14 @@ var session = require('express-session');
 const express = require('express');
 const app = express();
 const port = 3003;
+var {
+    currentUsers,
+    allSpots,
+    deletedID,
+    session_conf,
+    getUniqueID,
+    pagination,
+} = require('./helper');
 
 const path = require('path');
 
@@ -14,104 +22,6 @@ const path = require('path');
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
-const currentUsers = [
-    { email: 'abc', password: '123' },
-    { email: 'elina@gmail.com', password: 'cool' },
-    { email: 'hello123', password: '123' },
-];
-
-var allSpots = [
-    {
-        id: 1,
-        requester: 'abc',
-        time: '2021-10-01 1:00AM',
-        location: 'UBC Math 100 first row, any seat',
-        helper: 'elina@gmail.com',
-        reward: '$20',
-        visible: true,
-    },
-    {
-        id: 2,
-        requester: 'elina@gmail.com',
-        time: '2021-10-01 2:00AM',
-        location: 'UBC Math 100 first row, any seat',
-        helper: 'abc',
-        reward: '$20',
-        visible: true,
-    },
-    {
-        id: 3,
-        requester: 'elina@gmail.com',
-        time: '2021-10-01 3:00AM',
-        location: 'UBC Math 100 first row, any seat',
-        helper: undefined,
-        reward: '$20',
-        visible: true,
-    },
-    {
-        id: 4,
-        requester: 'hello123',
-        time: '2021-10-01 4:00AM',
-        location: 'UBC Math 100 first row, any seat',
-        helper: undefined,
-        reward: '$20',
-        visible: true,
-    },
-    {
-        id: 5,
-        requester: 'hello123',
-        time: '2021-10-01 5:00AM',
-        location: 'UBC Math 100 first row, any seat',
-        helper: 'elina@gmail.com',
-        reward: '$20',
-        visible: true,
-    },
-    {
-        id: 6,
-        requester: 'abc',
-        time: '2021-10-01 6:00AM',
-        location: 'UBC Math 100 first row, any seat',
-        helper: 'hello123',
-        reward: '$20',
-        visible: true,
-    },
-    {
-        id: 7,
-        requester: 'abc',
-        time: '2021-10-01 7:00AM',
-        location: 'UBC Math 100 first row, any seat',
-        helper: undefined,
-        reward: '$20',
-        visible: true,
-    },
-];
-let deletedID = [];
-
-// currentID = currentID.filter(onlyUnique);
-// function onlyUnique(value, index, self) {
-//     return self.indexOf(value) === index;
-// }
-function getUniqueID() {
-    if (deletedID.length != 0) {
-        return deletedID.pop();
-    }
-    let currentID = allSpots.map((e) => {
-        return e.id;
-    });
-    return Math.max(...currentID) + 1;
-}
-
-function minute_to_milisecond(min) {
-    return Math.ceil(min * 60 * 1000);
-}
-
-let session_conf = {
-    secret: 'no secret',
-    cookie: {
-        secure: false,
-        maxAge: minute_to_milisecond(10),
-    },
-};
 app.use(session(session_conf));
 
 app.listen(port, () => {
@@ -186,7 +96,16 @@ app.get('/spot/data/:type', (q, s) => {
     } else {
         s.redirect('/'); // TODO , check if this work.
     }
-    let type = q.params['type'];
+    const type = q.params['type'];
+    console.log('server ', q.query);
+    if (q.query) {
+        var page_num = q.query.page_num;
+    } else {
+        var page_num = undefined;
+    }
+    if (page_num <= 0) {
+        page_num = 1;
+    }
     let result = [];
     let filterHelper = (obj) => {
         // Check if helper == undefined, if it is, make sure it is null.
@@ -200,12 +119,12 @@ app.get('/spot/data/:type', (q, s) => {
         }
     };
     // 先过滤一遍 visible 的：
-    console.log('print before get ', allSpots);
+    // console.log('print before get ', allSpots);
     result = allSpots.filter((e) => {
         // console.log(e);
         return e.requester == my_email || e.visible == true; // 如果是自己的 post，或者不是自己的post 但是 visible 是true
     });
-    console.log('result after filter: ', result);
+    // console.log('result after filter: ', result);
     //
     switch (type) {
         case 'all':
@@ -250,11 +169,23 @@ app.get('/spot/data/:type', (q, s) => {
             console.log('invalid spot type !! you entered: ', type);
             break;
     }
+    // 这里，拿到所有要给 client 的数据后，来 pagination：
+    const num_post_per_page = 8;
+    let current_p, total_p;
+    [result, current_p, total_p] = pagination(
+        result,
+        page_num,
+        num_post_per_page
+    );
+
     result = {
         spots: result,
         user: my_email,
+        current_p,
+        total_p,
     };
     s.status(200).json(result);
+    s.end();
 });
 // id: 1,
 // requester: 'abc',
