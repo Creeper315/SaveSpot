@@ -38,8 +38,9 @@ function login() {
             // }
         })
         .catch((e) => {
-            // window.ee = e;
-            alert(e.response.data);
+            window.ee = e;
+
+            alert('login faileddd, ', e.response.data);
             // console.log('Login Error, \n', e.response.data);
         });
 }

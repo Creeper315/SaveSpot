@@ -55,9 +55,10 @@ let getDeleteButton = (one_spot_data, card_html_element) => {
             })
                 .then((e) => {
                     if (e.status == 200) {
-                        card_html_element.parentElement.removeChild(
-                            card_html_element
-                        );
+                        // card_html_element.parentElement.removeChild(
+                        //     card_html_element
+                        // );
+                        renderEverything(sessionStorage.getItem('type'));
                     }
                 })
                 .catch((e) => {

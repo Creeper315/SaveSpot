@@ -38,7 +38,9 @@ var allSpotLoaded = [];
 window.addEventListener('load', () => {
     let type = sessionStorage.getItem('type');
     if (type == null) {
-        type = 'all';
+        type = ['all'];
+    } else {
+        type = [type];
     }
     renderEverything(type);
 });
@@ -58,14 +60,18 @@ let renderEverything = (type = 'all') => {
         });
 };
 
-let fetchSpot = (type) => {
+let fetchSpot = (type = 'all') => {
     return axios({
         // 说明 axios 本身是一个 promise
-        method: 'get',
-        url: '/spot/data/' + type,
-        params: {
+        method: 'post',
+        url: '/spot/data/',
+        data: {
+            type,
             page_num: sessionStorage.getItem('cp'),
         },
+        // params: {
+
+        // },
     });
 };
 
@@ -112,17 +118,18 @@ function go_to_page(p) {
         p = 1;
     }
     // 先 load from server，如果成功，update 所有东西？
-    console.log(
-        'make sure data correct ',
-        cp,
-        tp,
-        sessionStorage.getItem('type'),
-        p
-    );
+    // console.log(
+    //     'make sure data correct ',
+    //     cp,
+    //     tp,
+    //     sessionStorage.getItem('type'),
+    //     p
+    // );
     axios({
-        method: 'get',
-        url: '/spot/data/' + sessionStorage.getItem('type'),
-        params: {
+        method: 'post',
+        url: '/spot/data/',
+        data: {
+            type: sessionStorage.getItem('type'),
             page_num: p,
         },
     })
@@ -263,8 +270,11 @@ function insertBody(one_spot_data) {
 function getAllSpot() {
     axios({
         // 说明 axios 本身是一个 promise
-        method: 'get',
-        url: '/spot/data/all',
+        method: 'post',
+        url: '/spot/data',
+        data: {
+            type: 'all',
+        },
     })
         .then((e) => {
             window.all = e.data.spots;
@@ -272,14 +282,6 @@ function getAllSpot() {
         .catch((e) => {
             console.log('error', e);
         });
-}
-
-function deletePost(postID) {
-    axios({
-        method: 'post',
-        url: '/spots/action/complete',
-        data: { postID },
-    });
 }
 
 // function saveEdit() {
@@ -339,13 +341,11 @@ function createPost() {
             .then((e) => {
                 if (e.status == 200) {
                     // one_spot_data 在 e.data 里面
-                    let card = oneSpotHTML(e.data);
-                    let con = document.querySelector('.all-card-container');
-
-                    con.insertBefore(card, con.firstChild);
-                    // changeCardBody(one_spot_data, card_html_element);
-                    // alert('created !');
-                    editSaveBtn.innerText = 'Created';
+                    // let card = oneSpotHTML(e.data);
+                    // let con = document.querySelector('.all-card-container');
+                    // con.insertBefore(card, con.firstChild);
+                    // editSaveBtn.innerText = 'Created';
+                    renderEverything(sessionStorage.getItem('type'));
                 } else {
                     editSaveBtn.innerText = 'Create failed';
                     alert('failed to save, status: ', e.status);
